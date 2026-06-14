@@ -4,8 +4,10 @@
   "controls": [
     "A.5.15",
     "A.5.16",
+    "A.5.17",
     "A.8.2",
     "A.8.24",
+    "A.8.5",
     "P27701.PII"
   ],
   "regulatory_scope": [
@@ -15,7 +17,8 @@
   "evidence_bundle": [
     {
       "control": [
-        "A.8.24"
+        "A.5.17",
+        "A.8.5"
       ],
       "evidence": "secret-scan finding + key-rotation proof + git-history scrub record",
       "for_rule": "R_secret_in_diff"
@@ -45,7 +48,7 @@
     }
   ],
   "reasoning_chain": [
-    "[R_secret_in_diff] -> ['A.8.24'] -> block",
+    "[R_secret_in_diff] -> ['A.5.17', 'A.8.5'] -> block",
     "[R_crypto_key_committed] -> ['A.8.24'] -> block",
     "[R_identity_change] -> ['A.5.15', 'A.5.16', 'A.8.2'] -> human_escalate",
     "[R_pii_flow] -> ['P27701.PII'] -> require_evidence",
@@ -54,7 +57,9 @@
   "responsibility": {
     "dev": {
       "responsible_for": [
+        "A.5.17",
         "A.8.24",
+        "A.8.5",
         "P27701.PII"
       ]
     },
@@ -67,8 +72,10 @@
       "accountable_for": [
         "A.5.15",
         "A.5.16",
+        "A.5.17",
         "A.8.2",
-        "A.8.24"
+        "A.8.24",
+        "A.8.5"
       ],
       "consulted_on": [
         "P27701.PII"
@@ -86,8 +93,10 @@
       "informed_of": [
         "A.5.15",
         "A.5.16",
+        "A.5.17",
         "A.8.2",
-        "A.8.24"
+        "A.8.24",
+        "A.8.5"
       ]
     }
   },
@@ -117,7 +126,8 @@
     {
       "rule": "R_secret_in_diff",
       "controls": [
-        "A.8.24"
+        "A.5.17",
+        "A.8.5"
       ],
       "evidence": "secret-scan finding + key-rotation proof + git-history scrub record",
       "required": "block",

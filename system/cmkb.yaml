@@ -1,6 +1,5 @@
 # CMKB — Control-Mapping Knowledge Base (paper-scoped release).
-# Maps PR events/artifacts to ISO/IEC 27001:2022 & 27701:2025-aligned controls,
-# required evidence, and graded gate actions. Secret-management / control-assurance;
+# ISO/IEC 27001:2022 & 27701:2025-aligned controls; secret-management / control-assurance;
 # no cryptographic-algorithm or AI/ML components.
 version: 0.1
 name: CMKB
@@ -96,7 +95,8 @@ rules:
 - id: R_secret_in_diff
   cond: signals.secret_in_diff == true
   controls:
-  - A.8.24
+  - A.5.17
+  - A.8.5
   evidence: secret-scan finding + key-rotation proof + git-history scrub record
   gate: block
   dims:
@@ -158,6 +158,8 @@ rules:
 - id: R_db_auth_fail
   cond: signals.db_auth_fail == true
   controls:
+  - A.5.17
+  - A.8.5
   - A.8.24
   - A.8.21
   evidence: 'L3 DB oracle FAIL: plaintext credential / no-TLS / no managed-identity'
