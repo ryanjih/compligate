@@ -184,7 +184,8 @@ rules:
   cond: signals.identity_data_import == true
   controls:
   - A.5.16
-  - P27701.PII
+  - P27701.A.1.2.2
+  - P27701.A.1.4.2
   evidence: 身份/個資匯入程序 + 處理目的與合法性(biz 當責) + 資料最小化
   gate: require_evidence
   dims:
@@ -206,7 +207,9 @@ rules:
 - id: R_pii_flow
   cond: signals.pii_flow == true
   controls:
-  - P27701.PII
+  - P27701.A.1.2.2
+  - P27701.A.1.2.9
+  - P27701.A.1.4.3
   evidence: data-flow annotation + processing purpose record + lawful-basis tag
   gate: require_evidence
   dims:
