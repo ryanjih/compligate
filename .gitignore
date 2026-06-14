@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.env
+.env
+# never publish real production logs / sensitive in-situ data
+deployment_locus_dataset.jsonl
+compligate_log.jsonl

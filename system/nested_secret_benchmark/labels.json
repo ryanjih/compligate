@@ -1,0 +1,246 @@
+{
+  "p00_appsettings_0.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p01_appsettings_1.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p02_appsettings_2.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p03_appsettings_3.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p04_appsettings_4.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p05_appsettings_5.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p06_deep.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p07_flat_0.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p08_flat_1.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p09_flat_2.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p10_flat_3.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p11_secrets.yaml": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p12_enc.yaml": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p13_keys.yaml": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p14_settings.toml": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p15_sub.toml": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p16_app.env": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p17_Crypto.cs": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p18_app.properties": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p19_web.config": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "p20_lowentropy.json": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p21_split.cs": {
+    "class": "crypto_pos",
+    "split": "dev"
+  },
+  "p22_unicode.json": {
+    "class": "crypto_pos",
+    "split": "test"
+  },
+  "n23_version.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n24_keyvault.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n25_envref.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n26_envref2.yaml": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n27_placeholder1.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n28_placeholder2.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n29_placeholder3.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n30_guid.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n31_path.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n32_empty.yaml": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n33_short.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n34_shorthex.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n35_commented.cs": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n36_hash_checksum.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n37_buildhash.yaml": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n38_disabled.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n39_ref_only.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n40_comment_yaml.yaml": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n41_template.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "dev"
+  },
+  "n42_desc.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n43_numbered.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "n44_falsekeyname.json": {
+    "class": "crypto_lookalike_neg",
+    "split": "test"
+  },
+  "g45_apitoken.json": {
+    "class": "generic_secret",
+    "split": "dev"
+  },
+  "g46_apikey.env": {
+    "class": "generic_secret",
+    "split": "dev"
+  },
+  "g47_password.json": {
+    "class": "generic_secret",
+    "split": "test"
+  },
+  "g48_bearer.txt": {
+    "class": "generic_secret",
+    "split": "test"
+  },
+  "g49_awskey.txt": {
+    "class": "generic_secret",
+    "split": "test"
+  },
+  "g50_jwt.env": {
+    "class": "generic_secret",
+    "split": "dev"
+  },
+  "g51_conn.cs": {
+    "class": "generic_secret",
+    "split": "dev"
+  },
+  "g52_slack.txt": {
+    "class": "generic_secret",
+    "split": "test"
+  },
+  "b53_config.json": {
+    "class": "benign_other",
+    "split": "test"
+  },
+  "b54_readme.md": {
+    "class": "benign_other",
+    "split": "test"
+  },
+  "b55_util.py": {
+    "class": "benign_other",
+    "split": "dev"
+  },
+  "b56_app.yaml": {
+    "class": "benign_other",
+    "split": "dev"
+  },
+  "b57_data.json": {
+    "class": "benign_other",
+    "split": "test"
+  },
+  "b58_style.css": {
+    "class": "benign_other",
+    "split": "test"
+  },
+  "b59_pkg.json": {
+    "class": "benign_other",
+    "split": "test"
+  },
+  "b60_notes.txt": {
+    "class": "benign_other",
+    "split": "dev"
+  }
+}

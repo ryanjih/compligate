@@ -1,0 +1,181 @@
+{
+  "gate": "block",
+  "gate_cost": 0.3,
+  "controls": [
+    "A.5.15",
+    "A.5.16",
+    "A.8.2",
+    "A.8.24",
+    "P27701.PII"
+  ],
+  "regulatory_scope": [
+    "iso27001",
+    "iso27701"
+  ],
+  "evidence_bundle": [
+    {
+      "control": [
+        "A.8.24"
+      ],
+      "evidence": "secret-scan finding + key-rotation proof + git-history scrub record",
+      "for_rule": "R_secret_in_diff"
+    },
+    {
+      "control": [
+        "A.8.24"
+      ],
+      "evidence": "committed 對稱/簽章金鑰偵測(CK1) + 金鑰輪替證明 + 改用 Key Vault/受管金鑰 + git 歷史清除紀錄",
+      "for_rule": "R_crypto_key_committed"
+    },
+    {
+      "control": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2"
+      ],
+      "evidence": "Entra OIDC federation subject + RBAC least-privilege scope diff + approver",
+      "for_rule": "R_identity_change"
+    },
+    {
+      "control": [
+        "P27701.PII"
+      ],
+      "evidence": "data-flow annotation + processing purpose record + lawful-basis tag",
+      "for_rule": "R_pii_flow"
+    }
+  ],
+  "reasoning_chain": [
+    "[R_secret_in_diff] -> ['A.8.24'] -> block",
+    "[R_crypto_key_committed] -> ['A.8.24'] -> block",
+    "[R_identity_change] -> ['A.5.15', 'A.5.16', 'A.8.2'] -> human_escalate",
+    "[R_pii_flow] -> ['P27701.PII'] -> require_evidence",
+    "conjunctive gate = max-strength(['block', 'block', 'human_escalate', 'require_evidence']) -> block"
+  ],
+  "responsibility": {
+    "dev": {
+      "responsible_for": [
+        "A.8.24",
+        "P27701.PII"
+      ]
+    },
+    "ops": {
+      "responsible_for": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2"
+      ],
+      "accountable_for": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2",
+        "A.8.24"
+      ],
+      "consulted_on": [
+        "P27701.PII"
+      ]
+    },
+    "biz": {
+      "accountable_for": [
+        "P27701.PII"
+      ],
+      "consulted_on": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2"
+      ],
+      "informed_of": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2",
+        "A.8.24"
+      ]
+    }
+  },
+  "route_to": [
+    "dev"
+  ],
+  "handover_brief": {
+    "biz_owns_controls": [
+      "P27701.PII"
+    ],
+    "key_risk_rules": [
+      "R_crypto_key_committed",
+      "R_identity_change",
+      "R_secret_in_diff"
+    ],
+    "cloud_resources_to_budget": [
+      "Entra ID app registration + federated credential"
+    ],
+    "budget_action_needed": true
+  },
+  "units": {
+    "dev": "開發單位 — 程式碼、測試、相依套件、安全寫法",
+    "ops": "資訊/維運單位 — 雲端建置、部署、身分平台/RBAC、DB/網路、金鑰",
+    "biz": "需求/業務單位 — 服務承接、身份資料匯入、存取紀錄審視、版本更新需求、資料當責、年度經費編列"
+  },
+  "fired": [
+    {
+      "rule": "R_secret_in_diff",
+      "controls": [
+        "A.8.24"
+      ],
+      "evidence": "secret-scan finding + key-rotation proof + git-history scrub record",
+      "required": "block",
+      "scope": "iso27001",
+      "axioms": [],
+      "owner": {
+        "R": "dev",
+        "A": "ops",
+        "I": "biz"
+      }
+    },
+    {
+      "rule": "R_crypto_key_committed",
+      "controls": [
+        "A.8.24"
+      ],
+      "evidence": "committed 對稱/簽章金鑰偵測(CK1) + 金鑰輪替證明 + 改用 Key Vault/受管金鑰 + git 歷史清除紀錄",
+      "required": "block",
+      "scope": "iso27001",
+      "axioms": [],
+      "owner": {
+        "R": "dev",
+        "A": "ops",
+        "I": "biz"
+      }
+    },
+    {
+      "rule": "R_identity_change",
+      "controls": [
+        "A.5.15",
+        "A.5.16",
+        "A.8.2"
+      ],
+      "evidence": "Entra OIDC federation subject + RBAC least-privilege scope diff + approver",
+      "required": "human_escalate",
+      "scope": "iso27001",
+      "axioms": [],
+      "owner": {
+        "R": "ops",
+        "A": "ops",
+        "C": "biz",
+        "I": "biz"
+      }
+    },
+    {
+      "rule": "R_pii_flow",
+      "controls": [
+        "P27701.PII"
+      ],
+      "evidence": "data-flow annotation + processing purpose record + lawful-basis tag",
+      "required": "require_evidence",
+      "scope": "iso27701",
+      "axioms": [],
+      "owner": {
+        "R": "dev",
+        "A": "biz",
+        "C": "ops"
+      }
+    }
+  ]
+}

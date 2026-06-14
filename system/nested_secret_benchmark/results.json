@@ -1,0 +1,116 @@
+{
+  "detection": {
+    "gitleaks (default)": {
+      "TP": 6,
+      "FP": 0,
+      "FN": 7,
+      "TN": 19,
+      "precision": 1.0,
+      "recall": 0.46,
+      "F1": 0.63,
+      "F1_CI": [
+        0.31,
+        0.85
+      ]
+    },
+    "gitleaks (custom rule)": {
+      "TP": 6,
+      "FP": 1,
+      "FN": 7,
+      "TN": 18,
+      "precision": 0.86,
+      "recall": 0.46,
+      "F1": 0.6,
+      "F1_CI": [
+        0.27,
+        0.82
+      ]
+    },
+    "trufflehog": {
+      "TP": 0,
+      "FP": 0,
+      "FN": 13,
+      "TN": 19,
+      "precision": 0.0,
+      "recall": 0.0,
+      "F1": 0.0,
+      "F1_CI": [
+        0,
+        0
+      ]
+    },
+    "CK1 (CompliGate)": {
+      "TP": 9,
+      "FP": 0,
+      "FN": 4,
+      "TN": 19,
+      "precision": 1.0,
+      "recall": 0.69,
+      "F1": 0.82,
+      "F1_CI": [
+        0.57,
+        0.96
+      ]
+    }
+  },
+  "ablation": {
+    "entropy only": {
+      "precision": 0.85,
+      "recall": 0.85,
+      "F1": 0.85
+    },
+    "key-name context only": {
+      "precision": 0.53,
+      "recall": 0.62,
+      "F1": 0.57
+    },
+    "context + entropy": {
+      "precision": 1.0,
+      "recall": 0.62,
+      "F1": 0.76
+    },
+    "context + entropy + allowlist": {
+      "precision": 1.0,
+      "recall": 0.62,
+      "F1": 0.76
+    }
+  },
+  "gate": {
+    "TP": 18,
+    "FP": 1,
+    "FN": 13,
+    "TN": 29,
+    "precision": 0.95,
+    "recall": 0.58,
+    "over_blocking": 0.03,
+    "fp": [
+      "n39_ref_only.json"
+    ],
+    "fn": [
+      "g45_apitoken.json",
+      "g47_password.json",
+      "g48_bearer.txt",
+      "g49_awskey.txt",
+      "g50_jwt.env",
+      "g52_slack.txt",
+      "p11_secrets.yaml",
+      "p12_enc.yaml",
+      "p18_app.properties",
+      "p19_web.config",
+      "p20_lowentropy.json",
+      "p21_split.cs",
+      "p22_unicode.json"
+    ]
+  },
+  "runtime": {
+    "ck1_ms_total": 1.1,
+    "ck1_ms_per_file": 0.02,
+    "gitleaks_ms": 25
+  },
+  "counts": {
+    "files": 61,
+    "det_test": 32,
+    "det_pos": 13,
+    "should_block": 31
+  }
+}

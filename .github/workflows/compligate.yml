@@ -1,0 +1,57 @@
+# 複製到你的 repo: .github/workflows/compligate.yml
+# 前置:把 system/ 內的 cmkb.yaml, cmkb_reasoner.py, collect_signals.py, compligate.py
+#       放到 repo 的 compligate/ 目錄。
+name: CompliGate
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  compligate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install pyyaml
+      # 可選:安裝掃描器(缺席時自動降級)
+      # - run: pipx install semgrep
+      # - run: curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sh
+      # 可選:若有 P12 AIDF reasoner,先產出 aidf_signals.json 給 --aidf
+      - name: AIDF layer (P12 reasoner)  — complicit-oracle / tool-error / rewrite-churn
+        env: { ANTHROPIC_API_KEY: "${{ secrets.ANTHROPIC_API_KEY }}" }
+        run: |
+          FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+          git log --format=%s "origin/${{ github.base_ref }}...HEAD" > /tmp/commits.txt || true
+          LLM=""; [ -n "$ANTHROPIC_API_KEY" ] && LLM="--llm"   # 有金鑰才做獨立 oracle 複審
+          python compligate/aidf_bridge.py --changed-files $FILES --repo-root . $LLM \
+            --commits-file /tmp/commits.txt --out aidf_signals.json || echo '{}' > aidf_signals.json
+          cat aidf_signals.json
+      - name: Collect signals
+        run: |
+          python compligate/collect_signals.py --base "origin/${{ github.base_ref }}" \
+            --aidf aidf_signals.json > signals.json
+          cat signals.json
+      - name: Evaluate compliance gate
+        id: gate
+        run: |
+          set +e
+          python compligate/compligate.py --signals signals.json \
+            --pr "${{ github.event.number }}" --out comment.md --log compligate_log.jsonl
+          echo "rc=$?" >> "$GITHUB_OUTPUT"
+      - name: Comment on PR
+        if: always()
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh pr comment "${{ github.event.number }}" --body-file comment.md
+      - name: Upload evidence log (research dataset)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: compligate-evidence, path: compligate_log.jsonl }
+      - name: Enforce gate
+        if: steps.gate.outputs.rc != '0'
+        run: |
+          echo "CompliGate requires action (block / human-escalate)."
+          exit 1

@@ -1,0 +1,9 @@
+{
+  "security": {
+    "crypto": {
+      "aesKey": {
+        "primary": "yr4XhaJitJ5epbpn/iukREtBiar8LFmUKejQfRHf3l0="
+      }
+    }
+  }
+}
