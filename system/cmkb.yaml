@@ -1,182 +1,319 @@
-# CMKB — Control-Mapping Knowledge Base v0 (P13, C1)
-# 事件/工件特徵(trigger) -> ISO 27001:2022 Annex A / ISO 27701 控制 -> 證據 -> 把關動作
-# 推論器(cmkb_reasoner.py)消費此檔。控制 ID 為真實 ISO 27001:2022 Annex A;27701 條款family待最終核對。
+# CMKB — Control-Mapping Knowledge Base (paper-scoped release).
+# Maps PR events/artifacts to ISO/IEC 27001:2022 & 27701:2025-aligned controls,
+# required evidence, and graded gate actions. Secret-management / control-assurance;
+# no cryptographic-algorithm or AI/ML components.
 version: 0.1
 name: CMKB
-
 dimensions:
-  risk: [low, med, high]
-  verifiability: [low, med, high]
-  auto_detectability: [low, med, high]
-  regulatory_scope: [none, iso27001, iso27701, both]
-
-# 把關動作:由寬到嚴(strength 越大越嚴;合取式閘門取最嚴)
+  risk:
+  - low
+  - med
+  - high
+  verifiability:
+  - low
+  - med
+  - high
+  auto_detectability:
+  - low
+  - med
+  - high
+  regulatory_scope:
+  - none
+  - iso27001
+  - iso27701
+  - both
 gate_actions:
-  - {id: merge,            strength: 0, cost: 0.0}   # 等同 accept
-  - {id: lightweight_verify, strength: 1, cost: 0.2}
-  - {id: require_evidence, strength: 2, cost: 0.4}   # 併入證據束後方可 merge
-  - {id: policy_fallback,  strength: 3, cost: 0.5}   # 強制確定性政策/組態
-  - {id: full_verify,      strength: 3, cost: 0.6}   # 獨立 oracle / 徹底驗證
-  - {id: human_escalate,   strength: 4, cost: 1.0}
-  - {id: block,            strength: 5, cost: 0.3}   # 硬擋,不得 merge
-
+- id: merge
+  strength: 0
+  cost: 0.0
+- id: lightweight_verify
+  strength: 1
+  cost: 0.2
+- id: require_evidence
+  strength: 2
+  cost: 0.4
+- id: policy_fallback
+  strength: 3
+  cost: 0.5
+- id: full_verify
+  strength: 3
+  cost: 0.6
+- id: human_escalate
+  strength: 4
+  cost: 1.0
+- id: block
+  strength: 5
+  cost: 0.3
 controls:
-  A.5.15:  {std: "ISO/IEC 27001:2022", title: "Access control"}
-  A.5.16:  {std: "ISO/IEC 27001:2022", title: "Identity management"}
-  A.5.23:  {std: "ISO/IEC 27001:2022", title: "Information security for use of cloud services"}
-  A.8.2:   {std: "ISO/IEC 27001:2022", title: "Privileged access rights"}
-  A.8.8:   {std: "ISO/IEC 27001:2022", title: "Management of technical vulnerabilities"}
-  A.8.15:  {std: "ISO/IEC 27001:2022", title: "Logging"}
-  A.8.21:  {std: "ISO/IEC 27001:2022", title: "Security of network services"}
-  A.8.24:  {std: "ISO/IEC 27001:2022", title: "Use of cryptography"}
-  A.8.25:  {std: "ISO/IEC 27001:2022", title: "Secure development life cycle"}
-  A.8.28:  {std: "ISO/IEC 27001:2022", title: "Secure coding"}
-  A.8.29:  {std: "ISO/IEC 27001:2022", title: "Security testing in development and acceptance"}
-  P27701.PII: {std: "ISO/IEC 27701:2019", title: "PII processing (PIMS augmentation; clause family to confirm)"}
-
-# 觸發規則:當 signal 條件成立時,對映控制+證據+基本動作+維度
-# cond: 對 PR signals 的布林判斷(signal 名 + 比較);詳見 reasoner 的 _match()
+  A.5.15:
+    std: ISO/IEC 27001:2022
+    title: Access control
+  A.5.16:
+    std: ISO/IEC 27001:2022
+    title: Identity management
+  A.5.23:
+    std: ISO/IEC 27001:2022
+    title: Information security for use of cloud services
+  A.8.2:
+    std: ISO/IEC 27001:2022
+    title: Privileged access rights
+  A.8.8:
+    std: ISO/IEC 27001:2022
+    title: Management of technical vulnerabilities
+  A.8.15:
+    std: ISO/IEC 27001:2022
+    title: Logging
+  A.8.21:
+    std: ISO/IEC 27001:2022
+    title: Security of network services
+  A.8.24:
+    std: ISO/IEC 27001:2022
+    title: Use of cryptography
+  A.8.25:
+    std: ISO/IEC 27001:2022
+    title: Secure development life cycle
+  A.8.28:
+    std: ISO/IEC 27001:2022
+    title: Secure coding
+  A.8.29:
+    std: ISO/IEC 27001:2022
+    title: Security testing in development and acceptance
+  P27701.PII:
+    std: ISO/IEC 27701:2019
+    title: PII processing (PIMS augmentation; clause family to confirm)
 rules:
-  - id: R_complicit_oracle
-    cond: "signals.complicit_oracle == true"
-    controls: [A.8.29]
-    evidence: "AIDF independent-oracle report (P12 reasoner): re-verify with a spec-derived oracle"
-    gate: full_verify
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_high_cve
-    cond: "signals.high_cve == true"
-    controls: [A.8.8]
-    evidence: "SCA report with CVE id, CVSS, affected version, fixed version"
-    gate: block
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_secret_in_diff
-    cond: "signals.secret_in_diff == true"
-    controls: [A.8.24]
-    evidence: "secret-scan finding + key-rotation proof + git-history scrub record"
-    gate: block
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_crypto_key_committed
-    cond: "signals.crypto_key_in_diff == true"
-    controls: [A.8.24]
-    evidence: "committed 對稱/簽章金鑰偵測(CK1) + 金鑰輪替證明 + 改用 Key Vault/受管金鑰 + git 歷史清除紀錄"
-    gate: block
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_identity_change
-    cond: "signals.identity_change == true"
-    controls: [A.5.15, A.5.16, A.8.2]
-    evidence: "Entra OIDC federation subject + RBAC least-privilege scope diff + approver"
-    gate: human_escalate
-    dims: {risk: high, verifiability: high, auto_detectability: med, regulatory_scope: iso27001}
-  - id: R_db_conn_change
-    cond: "signals.db_conn_change == true"
-    controls: [A.8.21, A.5.23]
-    evidence: "connection-integrity test (TLS/managed-identity) + auth-mode (no plaintext cred) verification"
-    gate: full_verify
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_identity_auth_fail
-    cond: "signals.identity_auth_fail == true"
-    controls: [A.5.15, A.5.16, A.8.2]
-    evidence: "L3 identity oracle FAIL: secretless-OIDC / federated-subject binding / least-privilege RBAC"
-    gate: block
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_db_auth_fail
-    cond: "signals.db_auth_fail == true"
-    controls: [A.8.24, A.8.21]
-    evidence: "L3 DB oracle FAIL: plaintext credential / no-TLS / no managed-identity"
-    gate: block
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_cloud_resource
-    cond: "signals.cloud_resource_provision == true"
-    controls: [A.5.23]
-    evidence: "雲端資源清單 + 年度經費估算 + biz 出資確認(承接前告知)"
-    gate: require_evidence
-    dims: {risk: med, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_identity_data_import
-    cond: "signals.identity_data_import == true"
-    controls: [A.5.16, P27701.PII]
-    evidence: "身份/個資匯入程序 + 處理目的與合法性(biz 當責) + 資料最小化"
-    gate: require_evidence
-    dims: {risk: high, verifiability: med, auto_detectability: med, regulatory_scope: both}
-  - id: R_access_logging
-    cond: "signals.access_logging_change == true"
-    controls: [A.8.15]
-    evidence: "存取/稽核紀錄設定 + 保存期 + biz 定期審視程序"
-    gate: require_evidence
-    dims: {risk: med, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_pii_flow
-    cond: "signals.pii_flow == true"
-    controls: [P27701.PII]
-    evidence: "data-flow annotation + processing purpose record + lawful-basis tag"
-    gate: require_evidence
-    dims: {risk: high, verifiability: med, auto_detectability: low, regulatory_scope: iso27701}
-  - id: R_insecure_pattern
-    cond: "signals.sast_high == true"
-    controls: [A.8.28]
-    evidence: "SAST high-severity finding triage + fix or justified suppression"
-    gate: full_verify
-    dims: {risk: high, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_new_dependency
-    cond: "signals.new_dependency == true and signals.high_cve == false"
-    controls: [A.8.8]
-    evidence: "SCA summary (no high CVE) + license check"
-    gate: lightweight_verify
-    dims: {risk: med, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_tool_exec_error
-    cond: "signals.tool_error == true"
-    controls: [A.8.25]
-    evidence: "CI tool-error log + resolution"
-    gate: lightweight_verify
-    dims: {risk: med, verifiability: high, auto_detectability: high, regulatory_scope: iso27001}
-  - id: R_rewrite_churn
-    cond: "signals.rewrite_churn == true"
-    controls: [A.8.25]
-    evidence: "spec-clarity note (rewrite-cue detected)"
-    gate: lightweight_verify
-    dims: {risk: med, verifiability: med, auto_detectability: med, regulatory_scope: iso27001}
-
-# 公理:在規則之上施加硬約束(由 reasoner 套用,可升級個別規則的 gate)
-# 責任歸屬(RACI:Responsible/Accountable/Consulted/Informed)— ISO 27001 A.5.2/A.5.3。
-# 大專院校三方分工:開發(dev) / 資訊維運(ops) / 需求業務(biz)。
-# biz 為服務承接、資料與年度經費之當責方,但通常不具雲端建置能力 -> 對 infra/安全發現
-# 須被「諮詢(C)/告知(I)」其風險、所需雲端資源與經費(見 resources)。
+- id: R_high_cve
+  cond: signals.high_cve == true
+  controls:
+  - A.8.8
+  evidence: SCA report with CVE id, CVSS, affected version, fixed version
+  gate: block
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_secret_in_diff
+  cond: signals.secret_in_diff == true
+  controls:
+  - A.8.24
+  evidence: secret-scan finding + key-rotation proof + git-history scrub record
+  gate: block
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_crypto_key_committed
+  cond: signals.crypto_key_in_diff == true
+  controls:
+  - A.8.24
+  evidence: committed 對稱/簽章金鑰偵測(CK1) + 金鑰輪替證明 + 改用 Key Vault/受管金鑰 + git 歷史清除紀錄
+  gate: block
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_identity_change
+  cond: signals.identity_change == true
+  controls:
+  - A.5.15
+  - A.5.16
+  - A.8.2
+  evidence: Entra OIDC federation subject + RBAC least-privilege scope diff + approver
+  gate: human_escalate
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: med
+    regulatory_scope: iso27001
+- id: R_db_conn_change
+  cond: signals.db_conn_change == true
+  controls:
+  - A.8.21
+  - A.5.23
+  evidence: connection-integrity test (TLS/managed-identity) + auth-mode (no plaintext
+    cred) verification
+  gate: full_verify
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_identity_auth_fail
+  cond: signals.identity_auth_fail == true
+  controls:
+  - A.5.15
+  - A.5.16
+  - A.8.2
+  evidence: 'L3 identity oracle FAIL: secretless-OIDC / federated-subject binding
+    / least-privilege RBAC'
+  gate: block
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_db_auth_fail
+  cond: signals.db_auth_fail == true
+  controls:
+  - A.8.24
+  - A.8.21
+  evidence: 'L3 DB oracle FAIL: plaintext credential / no-TLS / no managed-identity'
+  gate: block
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_cloud_resource
+  cond: signals.cloud_resource_provision == true
+  controls:
+  - A.5.23
+  evidence: 雲端資源清單 + 年度經費估算 + biz 出資確認(承接前告知)
+  gate: require_evidence
+  dims:
+    risk: med
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_identity_data_import
+  cond: signals.identity_data_import == true
+  controls:
+  - A.5.16
+  - P27701.PII
+  evidence: 身份/個資匯入程序 + 處理目的與合法性(biz 當責) + 資料最小化
+  gate: require_evidence
+  dims:
+    risk: high
+    verifiability: med
+    auto_detectability: med
+    regulatory_scope: both
+- id: R_access_logging
+  cond: signals.access_logging_change == true
+  controls:
+  - A.8.15
+  evidence: 存取/稽核紀錄設定 + 保存期 + biz 定期審視程序
+  gate: require_evidence
+  dims:
+    risk: med
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_pii_flow
+  cond: signals.pii_flow == true
+  controls:
+  - P27701.PII
+  evidence: data-flow annotation + processing purpose record + lawful-basis tag
+  gate: require_evidence
+  dims:
+    risk: high
+    verifiability: med
+    auto_detectability: low
+    regulatory_scope: iso27701
+- id: R_insecure_pattern
+  cond: signals.sast_high == true
+  controls:
+  - A.8.28
+  evidence: SAST high-severity finding triage + fix or justified suppression
+  gate: full_verify
+  dims:
+    risk: high
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
+- id: R_new_dependency
+  cond: signals.new_dependency == true and signals.high_cve == false
+  controls:
+  - A.8.8
+  evidence: SCA summary (no high CVE) + license check
+  gate: lightweight_verify
+  dims:
+    risk: med
+    verifiability: high
+    auto_detectability: high
+    regulatory_scope: iso27001
 units:
-  dev: "開發單位 — 程式碼、測試、相依套件、安全寫法"
-  ops: "資訊/維運單位 — 雲端建置、部署、身分平台/RBAC、DB/網路、金鑰"
-  biz: "需求/業務單位 — 服務承接、身份資料匯入、存取紀錄審視、版本更新需求、資料當責、年度經費編列"
-ownership:   # rule_id -> {R, A, C, I}
-  R_complicit_oracle:    {R: dev, A: dev}
-  R_covert_complicity:   {R: dev, A: dev}
-  R_insecure_pattern:    {R: dev, A: dev}
-  R_tool_exec_error:     {R: dev, A: dev}
-  R_new_dependency:      {R: dev, A: dev}
-  R_high_cve:            {R: dev, A: ops, I: biz}
-  R_secret_in_diff:      {R: dev, A: ops, I: biz}
-  R_crypto_key_committed: {R: dev, A: ops, I: biz}
-  R_rewrite_churn:       {R: biz, A: biz, C: dev}
-  R_identity_change:     {R: ops, A: ops, C: biz, I: biz}
-  R_identity_auth_fail:  {R: ops, A: ops, C: biz, I: biz}
-  R_db_conn_change:      {R: ops, A: ops, C: biz, I: biz}
-  R_db_auth_fail:        {R: ops, A: ops, C: biz, I: biz}
-  R_pii_flow:            {R: dev, A: biz, C: ops}
-  R_cloud_resource:      {R: ops, A: biz, C: biz, I: biz}
-  R_identity_data_import: {R: biz, A: biz, C: ops}
-  R_access_logging:      {R: ops, A: biz, I: biz}
-
-# 雲端資源/經費對映:觸發這些規則代表需配置可計費雲端資源 -> 由 biz 編列年度經費。
+  dev: 開發單位 — 程式碼、測試、相依套件、安全寫法
+  ops: 資訊/維運單位 — 雲端建置、部署、身分平台/RBAC、DB/網路、金鑰
+  biz: 需求/業務單位 — 服務承接、身份資料匯入、存取紀錄審視、版本更新需求、資料當責、年度經費編列
+ownership:
+  R_covert_complicity:
+    R: dev
+    A: dev
+  R_insecure_pattern:
+    R: dev
+    A: dev
+  R_new_dependency:
+    R: dev
+    A: dev
+  R_high_cve:
+    R: dev
+    A: ops
+    I: biz
+  R_secret_in_diff:
+    R: dev
+    A: ops
+    I: biz
+  R_crypto_key_committed:
+    R: dev
+    A: ops
+    I: biz
+  R_identity_change:
+    R: ops
+    A: ops
+    C: biz
+    I: biz
+  R_identity_auth_fail:
+    R: ops
+    A: ops
+    C: biz
+    I: biz
+  R_db_conn_change:
+    R: ops
+    A: ops
+    C: biz
+    I: biz
+  R_db_auth_fail:
+    R: ops
+    A: ops
+    C: biz
+    I: biz
+  R_pii_flow:
+    R: dev
+    A: biz
+    C: ops
+  R_cloud_resource:
+    R: ops
+    A: biz
+    C: biz
+    I: biz
+  R_identity_data_import:
+    R: biz
+    A: biz
+    C: ops
+  R_access_logging:
+    R: ops
+    A: biz
+    I: biz
 resources:
-  R_identity_change:     "Entra ID app registration + federated credential"
-  R_identity_auth_fail:  "Entra ID app registration + federated credential"
-  R_db_conn_change:      "Azure SQL / 受管資料庫(含備援、加密)"
-  R_db_auth_fail:        "Azure SQL / 受管資料庫 + Key Vault"
-  R_cloud_resource:      "雲端服務(App Service / Storage / 網路)"
-  R_access_logging:      "稽核紀錄保存(Log Analytics / 儲存體,含保存期成本)"
-
+  R_identity_change: Entra ID app registration + federated credential
+  R_identity_auth_fail: Entra ID app registration + federated credential
+  R_db_conn_change: Azure SQL / 受管資料庫(含備援、加密)
+  R_db_auth_fail: Azure SQL / 受管資料庫 + Key Vault
+  R_cloud_resource: 雲端服務(App Service / Storage / 網路)
+  R_access_logging: 稽核紀錄保存(Log Analytics / 儲存體,含保存期成本)
 axioms:
-  - {id: AX1_pii_min_evidence, when: "regulatory_scope in [iso27701, both]", require_min: require_evidence,
-     note: "PII 流程至少需 PIMS 證據"}
-  - {id: AX2_hard_block, when: "rule in [R_secret_in_diff, R_high_cve, R_crypto_key_committed]", require: block,
-     note: "明文密鑰/高危 CVE/committed 加密金鑰一律硬擋"}
-  - {id: AX3_identity_human, when: "rule == R_identity_change", require: human_escalate,
-     note: "特權/身分變更需人工裁決"}
-  - {id: AX4_verifier_independent, when: "rule == R_complicit_oracle", require: full_verify,
-     note: "被汙染的驗證者需獨立 oracle(沿用 P12 A4)"}
+- id: AX1_pii_min_evidence
+  when: regulatory_scope in [iso27701, both]
+  require_min: require_evidence
+  note: PII 流程至少需 PIMS 證據
+- id: AX2_hard_block
+  when: rule in [R_secret_in_diff, R_high_cve, R_crypto_key_committed]
+  require: block
+  note: 明文密鑰/高危 CVE/committed 加密金鑰一律硬擋
+- id: AX3_identity_human
+  when: rule == R_identity_change
+  require: human_escalate
+  note: 特權/身分變更需人工裁決
